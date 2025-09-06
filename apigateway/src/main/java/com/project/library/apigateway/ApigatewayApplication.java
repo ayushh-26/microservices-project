@@ -1,4 +1,4 @@
-package com.project.library.Reviews;
+package com.project.library.apigateway;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -6,11 +6,12 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-@ComponentScan(basePackages = "com.project.library.Reviews")
+@ComponentScan(basePackages = "com.project.library.apigateway")
 @EnableDiscoveryClient
-public class ReviewServiceApplication {
-    public static void main(String[] args) {
+public class ApigatewayApplication {
 
-        SpringApplication.run(ReviewServiceApplication.class, args);
-    }
+	public static void main(String[] args) {
+		SpringApplication.run(ApigatewayApplication.class, args);
+	}
+
 }
