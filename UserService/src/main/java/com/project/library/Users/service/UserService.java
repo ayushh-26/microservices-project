@@ -7,7 +7,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,6 +29,23 @@ public class UserService {
         User user = modelMapper.map(dto, User.class);
         User created = userRepository.addUser(user);
         return modelMapper.map(created, UserDTO.class);
+    }
+
+    public Map<String, Object> getUsersPaginated(int page, int size) {
+        long totalElements = userRepository.countUsers();
+        int totalPages = (int) Math.ceil((double) totalElements / size);
+
+        List<UserDTO> users = userRepository.getUsersPaginated(page, size).stream()
+                .map(u -> modelMapper.map(u, UserDTO.class))
+                .collect(Collectors.toList());
+
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("page", page);
+        response.put("size", size);
+        response.put("totalPages", totalPages);
+        response.put("totalElements", totalElements);
+        response.put("users", users);
+        return response;
     }
 
     // READ

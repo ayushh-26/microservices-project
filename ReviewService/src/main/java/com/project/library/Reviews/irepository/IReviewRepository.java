@@ -11,8 +11,11 @@ public interface IReviewRepository {
 
     // READ
     List<Review> getAllReviews();
+
     Review getReviewById(String reviewId);
+
     List<Review> getReviewsByUserId(String userId);
+
     List<Review> getReviewsByBookId(String bookId);
 
     // UPDATE
@@ -23,4 +26,10 @@ public interface IReviewRepository {
 
     // CHECK if user already reviewed a book
     boolean hasUserReviewedBook(String userId, String bookId);
+
+    // Pagination support
+    List<Review> getReviewsPaginated(int offset, int size);
+
+    int getTotalReviewsCount();
+
 }

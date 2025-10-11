@@ -65,4 +65,18 @@ public class UserRepositoryImpl implements IUserRepository {
         int deleted = jdbcTemplate.update(sql, userId);
         return deleted > 0;
     }
+
+    @Override
+    public List<User> getUsersPaginated(int page, int size) {
+        int offset = page * size;
+        String sql = "SELECT * FROM users LIMIT ? OFFSET ?";
+        return jdbcTemplate.query(sql, new Object[] { size, offset }, new UserRowMapper());
+    }
+
+    @Override
+    public long countUsers() {
+        String sql = "SELECT COUNT(*) FROM users";
+        return jdbcTemplate.queryForObject(sql, Long.class);
+    }
+
 }

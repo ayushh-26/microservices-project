@@ -85,4 +85,18 @@ public class IssueRepositoryImpl implements IIssueRepository {
         String sql = "SELECT * FROM issues WHERE book_id IN (" + inSql + ")";
         return jdbcTemplate.query(sql, new IssueRowMapper(), bookIds.toArray());
     }
+
+    @Override
+    public List<Issue> getIssuesPaginated(int offset, int size) {
+        String sql = "SELECT * FROM issues LIMIT ? OFFSET ?";
+        return jdbcTemplate.query(sql, new IssueRowMapper(), size, offset);
+    }
+
+    @Override
+    public int getTotalIssuesCount() {
+        String sql = "SELECT COUNT(*) FROM issues";
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class);
+        return count != null ? count : 0;
+    }
+
 }

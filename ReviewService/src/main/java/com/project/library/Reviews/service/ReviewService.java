@@ -65,6 +65,24 @@ public class ReviewService {
                 .collect(Collectors.toList());
     }
 
+    public Map<String, Object> getReviewsPaginated(int page, int size) {
+        int totalElements = reviewRepository.getTotalReviewsCount();
+        int offset = page * size;
+
+        List<ReviewDTO> reviews = reviewRepository.getReviewsPaginated(offset, size).stream()
+                .map(r -> modelMapper.map(r, ReviewDTO.class))
+                .collect(Collectors.toList());
+
+        int totalPages = (int) Math.ceil((double) totalElements / size);
+
+        return Map.of(
+                "page", page,
+                "size", size,
+                "totalPages", totalPages,
+                "totalElements", totalElements,
+                "reviews", reviews);
+    }
+
     public ReviewDTO getReviewById(String reviewId) {
         Review review = reviewRepository.getReviewById(reviewId);
         return modelMapper.map(review, ReviewDTO.class);

@@ -21,6 +21,12 @@ public interface IBookRepository {
 
     List<Book> getBooksByAuthor(String author);
 
+    List<Book> getBooksByPage(int page, int size);
+
+    List<Book> getBooksByStartEnd(int start, int end);
+
+    int getTotalBooks();
+
     // Methods to support IssueService
     void decrementAvailable(String bookId);
 

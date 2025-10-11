@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/books") // Base URL
@@ -144,4 +145,21 @@ public class BookController {
         bookService.incrementAvailable(bookId);
         return ResponseEntity.ok().build();
     }
+
+    /*
+ * GET /books/nextpage?page=0&size=100
+ * or
+ * GET /books/nextpage?page=0&start=10&end=70
+ */
+@GetMapping("/nextpage")
+public ResponseEntity<Map<String, Object>> getBooksByPage(
+        @RequestParam(required = false, defaultValue = "0") Integer page,
+        @RequestParam(required = false, defaultValue = "10") Integer size,
+        @RequestParam(required = false) Integer start,
+        @RequestParam(required = false) Integer end) {
+
+    Map<String, Object> response = bookService.getBooksPaginated(page, size, start, end);
+    return ResponseEntity.ok(response);
+}
+
 }

@@ -11,7 +11,9 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 
 import java.sql.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -58,6 +60,26 @@ public class IssueService {
 
         return modelMapper.map(created, IssueDTO.class);
     }
+
+    // ------------------- PAGINATION -------------------
+public Map<String, Object> getIssuesPaginated(int page, int size) {
+    int offset = page * size;
+    int totalElements = issueRepository.getTotalIssuesCount();
+    int totalPages = (int) Math.ceil((double) totalElements / size);
+
+    List<IssueDTO> issues = issueRepository.getIssuesPaginated(offset, size).stream()
+            .map(i -> modelMapper.map(i, IssueDTO.class))
+            .collect(Collectors.toList());
+
+    Map<String, Object> response = new LinkedHashMap<>();
+    response.put("page", page);
+    response.put("size", size);
+    response.put("totalPages", totalPages);
+    response.put("totalElements", totalElements);
+    response.put("issues", issues);
+    return response;
+}
+
 
     // ------------------- RETURN BOOK -------------------
     public boolean returnBook(String issueId, String returnDateStr) {

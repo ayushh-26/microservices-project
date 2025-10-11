@@ -10,8 +10,8 @@ import org.springframework.cloud.config.server.EnableConfigServer;
 public class ConfigurationserverApplication {
 
     public static void main(String[] args) {
-        Dotenv dotenv = Dotenv.load(); 
-        String mode = dotenv.get("CONFIG_MODE"); 
+        Dotenv dotenv = Dotenv.load();
+        String mode = dotenv.get("CONFIG_MODE");
 
         SpringApplication app = new SpringApplication(ConfigurationserverApplication.class);
 

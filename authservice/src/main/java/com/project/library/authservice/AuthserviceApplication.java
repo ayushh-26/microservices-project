@@ -1,4 +1,4 @@
-package com.project.library.apigateway;
+package com.project.library.authservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -6,12 +6,12 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-@ComponentScan(basePackages = "com.project.library.apigateway")
 @EnableDiscoveryClient
-public class ApigatewayApplication {
+@ComponentScan(basePackages = "com.project.library.authservice")
+public class AuthserviceApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(ApigatewayApplication.class, args);
-	}  
+		SpringApplication.run(AuthserviceApplication.class, args);
+	}
 
 }

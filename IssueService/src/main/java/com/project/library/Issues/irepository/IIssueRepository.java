@@ -25,4 +25,8 @@ public interface IIssueRepository {
 
     // Updated: Accepts a list of book IDs instead of single bookName
     List<Issue> getIssuesByBookName(List<String> bookIds);
+
+    List<Issue> getIssuesPaginated(int offset, int size);
+int getTotalIssuesCount();
+
 }

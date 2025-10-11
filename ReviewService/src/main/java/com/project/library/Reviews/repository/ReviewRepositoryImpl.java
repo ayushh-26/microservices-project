@@ -19,14 +19,13 @@ public class ReviewRepositoryImpl implements IReviewRepository {
     @Override
     public Review addReview(Review review) {
         String sql = "INSERT INTO review (review_id, user_id, book_id, rating, comment, review_date) " +
-                     "VALUES (?, ?, ?, ?, ?, NOW())";
+                "VALUES (?, ?, ?, ?, ?, NOW())";
         jdbcTemplate.update(sql,
                 review.getReviewId(),
                 review.getUserId(),
                 review.getBookId(),
                 review.getRating(),
-                review.getComment()
-        );
+                review.getComment());
         return review;
     }
 
@@ -40,19 +39,19 @@ public class ReviewRepositoryImpl implements IReviewRepository {
     @Override
     public Review getReviewById(String reviewId) {
         String sql = "SELECT * FROM review WHERE review_id = ?";
-        return jdbcTemplate.queryForObject(sql, new Object[]{reviewId}, new ReviewRowMapper());
+        return jdbcTemplate.queryForObject(sql, new Object[] { reviewId }, new ReviewRowMapper());
     }
 
     @Override
     public List<Review> getReviewsByUserId(String userId) {
         String sql = "SELECT * FROM review WHERE user_id = ?";
-        return jdbcTemplate.query(sql, new Object[]{userId}, new ReviewRowMapper());
+        return jdbcTemplate.query(sql, new Object[] { userId }, new ReviewRowMapper());
     }
 
     @Override
     public List<Review> getReviewsByBookId(String bookId) {
         String sql = "SELECT * FROM review WHERE book_id = ?";
-        return jdbcTemplate.query(sql, new Object[]{bookId}, new ReviewRowMapper());
+        return jdbcTemplate.query(sql, new Object[] { bookId }, new ReviewRowMapper());
     }
 
     // ------------------- UPDATE -------------------
@@ -62,8 +61,7 @@ public class ReviewRepositoryImpl implements IReviewRepository {
         int updated = jdbcTemplate.update(sql,
                 review.getRating(),
                 review.getComment(),
-                review.getReviewId()
-        );
+                review.getReviewId());
         return updated > 0;
     }
 
@@ -79,8 +77,21 @@ public class ReviewRepositoryImpl implements IReviewRepository {
     @Override
     public boolean hasUserReviewedBook(String userId, String bookId) {
         String sql = "SELECT COUNT(*) FROM review WHERE user_id = ? AND book_id = ?";
-        Integer count = jdbcTemplate.queryForObject(sql, new Object[]{userId, bookId}, Integer.class);
+        Integer count = jdbcTemplate.queryForObject(sql, new Object[] { userId, bookId }, Integer.class);
         return count != null && count > 0;
     }
-}
 
+    @Override
+    public List<Review> getReviewsPaginated(int offset, int size) {
+        String sql = "SELECT * FROM review LIMIT ? OFFSET ?";
+        return jdbcTemplate.query(sql, new ReviewRowMapper(), size, offset);
+    }
+
+    @Override
+    public int getTotalReviewsCount() {
+        String sql = "SELECT COUNT(*) FROM review";
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class);
+        return count != null ? count : 0;
+    }
+
+}

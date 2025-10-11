@@ -120,4 +120,14 @@ public class IssueController {
             return ResponseEntity.notFound().build();
         return ResponseEntity.ok("Issue deleted successfully.");
     }
+
+    // ------------------- PAGINATION ENDPOINT -------------------
+    // GET http://localhost:9003/issues/nextpage?page=0&size=5
+    @GetMapping("/nextpage")
+    public ResponseEntity<?> getIssuesPaginated(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size) {
+        return ResponseEntity.ok(issueService.getIssuesPaginated(page, size));
+    }
+
 }

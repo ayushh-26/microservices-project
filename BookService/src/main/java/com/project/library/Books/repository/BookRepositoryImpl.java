@@ -93,4 +93,27 @@ public class BookRepositoryImpl implements IBookRepository {
         String sql = "UPDATE books SET available_copies = available_copies + 1 WHERE book_id = ?";
         jdbcTemplate.update(sql, bookId);
     }
+
+    @Override
+public List<Book> getBooksByPage(int page, int size) {
+    int offset = page * size;
+    String sql = "SELECT * FROM books LIMIT ? OFFSET ?";
+    return jdbcTemplate.query(sql, new BookRowMapper(), size, offset);
+}
+
+// Optional: start & end rows
+@Override
+public List<Book> getBooksByStartEnd(int start, int end) {
+    int size = end - start + 1;
+    String sql = "SELECT * FROM books LIMIT ? OFFSET ?";
+    return jdbcTemplate.query(sql, new BookRowMapper(), size, start);
+}
+
+// Total number of books
+@Override
+public int getTotalBooks() {
+    String sql = "SELECT COUNT(*) FROM books";
+    return jdbcTemplate.queryForObject(sql, Integer.class);
+}
+
 }

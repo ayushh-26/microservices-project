@@ -94,4 +94,14 @@ public class UserController {
         boolean exists = userService.getUserById(userId) != null;
         return ResponseEntity.ok(exists);
     }
+
+    // Pagination endpoint
+    // GET http://localhost:9001/users/nextpage?page=0&size=5
+    @GetMapping("/nextpage")
+    public ResponseEntity<?> getUsersPaginated(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size) {
+        return ResponseEntity.ok(userService.getUsersPaginated(page, size));
+    }
+
 }

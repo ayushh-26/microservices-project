@@ -15,5 +15,10 @@ public interface IUserRepository {
 
     boolean updateUser(User user); // Update
 
-    boolean deleteUserById(String userId); // Delete
+    boolean deleteUserById(String userId); //
+
+    List<User> getUsersPaginated(int page, int size);
+
+    long countUsers();
+
 }

@@ -11,6 +11,9 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import java.util.Map;
+import java.util.HashMap;
+
 @Service
 public class BookService {
 
@@ -22,6 +25,35 @@ public class BookService {
         this.bookRepository = bookRepository;
         this.modelMapper = modelMapper;
     }
+
+
+public Map<String, Object> getBooksPaginated(Integer page, Integer size, Integer start, Integer end) {
+    int totalElements = bookRepository.getTotalBooks();
+    List<Book> books;
+
+    if (start != null && end != null) {
+        books = bookRepository.getBooksByStartEnd(start, end);
+        size = books.size();
+        page = start / size; // optional, approximate page
+    } else {
+        books = bookRepository.getBooksByPage(page, size);
+    }
+
+    int totalPages = (int) Math.ceil((double) totalElements / size);
+
+    List<BookDTO> bookDTOs = books.stream()
+            .map(b -> modelMapper.map(b, BookDTO.class))
+            .collect(Collectors.toList());
+
+    Map<String, Object> response = new HashMap<>();
+    response.put("page", page);
+    response.put("size", size);
+    response.put("totalPages", totalPages);
+    response.put("totalElements", totalElements);
+    response.put("books", bookDTOs);
+
+    return response;
+}
 
     // CREATE
     public BookDTO addBook(BookDTO dto) {
@@ -100,4 +132,5 @@ public class BookService {
     public boolean deleteBook(String bookId) {
         return bookRepository.deleteBookById(bookId);
     }
+
 }

@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/reviews")
@@ -20,18 +21,18 @@ public class ReviewController {
      * POST http://localhost:9004/reviews/add
      * Body example:
      * {
-     *   "userId":"U001",
-     *   "bookId":"B001",
-     *   "rating":5,
-     *   "comment":"Great book!"
+     * "userId":"U001",
+     * "bookId":"B001",
+     * "rating":5,
+     * "comment":"Great book!"
      * }
      * Response example:
      * {
-     *   "reviewId":"R001",
-     *   "userId":"U001",
-     *   "bookId":"B001",
-     *   "rating":5,
-     *   "comment":"Great book!"
+     * "reviewId":"R001",
+     * "userId":"U001",
+     * "bookId":"B001",
+     * "rating":5,
+     * "comment":"Great book!"
      * }
      */
     @PostMapping("/add")
@@ -49,8 +50,10 @@ public class ReviewController {
      * GET http://localhost:9004/reviews/all
      * Response example:
      * [
-     *   {"reviewId":"R001","userId":"U001","bookId":"B001","rating":5,"comment":"Great book!"},
-     *   {"reviewId":"R002","userId":"U002","bookId":"B002","rating":4,"comment":"Nice read"}
+     * {"reviewId":"R001","userId":"U001","bookId":"B001","rating":5,
+     * "comment":"Great book!"},
+     * {"reviewId":"R002","userId":"U002","bookId":"B002","rating":4,
+     * "comment":"Nice read"}
      * ]
      */
     @GetMapping("/all")
@@ -81,18 +84,18 @@ public class ReviewController {
      * PUT http://localhost:9004/reviews/update
      * Body example:
      * {
-     *   "reviewId":"R001",
-     *   "userId":"U001",
-     *   "bookId":"B001",
-     *   "rating":4,
-     *   "comment":"Updated comment"
+     * "reviewId":"R001",
+     * "userId":"U001",
+     * "bookId":"B001",
+     * "rating":4,
+     * "comment":"Updated comment"
      * }
      */
     @PutMapping("/update")
     public ResponseEntity<String> updateReview(@RequestBody ReviewDTO dto) {
         boolean updated = reviewService.updateReview(dto);
-        return updated ? ResponseEntity.ok("Review updated successfully.") :
-                ResponseEntity.badRequest().body("Failed to update review.");
+        return updated ? ResponseEntity.ok("Review updated successfully.")
+                : ResponseEntity.badRequest().body("Failed to update review.");
     }
 
     // ------------------- DELETE -------------------
@@ -103,7 +106,15 @@ public class ReviewController {
     @DeleteMapping("/delete/{reviewId}")
     public ResponseEntity<String> deleteReview(@PathVariable String reviewId) {
         boolean deleted = reviewService.deleteReview(reviewId);
-        return deleted ? ResponseEntity.ok("Review deleted successfully.") :
-                ResponseEntity.notFound().build();
+        return deleted ? ResponseEntity.ok("Review deleted successfully.") : ResponseEntity.notFound().build();
     }
+
+    // GET http://localhost:9004/reviews/nextpage?page=0&size=5
+    @GetMapping("/nextpage")
+    public ResponseEntity<Map<String, Object>> getReviewsPaginated(
+            @RequestParam int page,
+            @RequestParam int size) {
+        return ResponseEntity.ok(reviewService.getReviewsPaginated(page, size));
+    }
+
 }
