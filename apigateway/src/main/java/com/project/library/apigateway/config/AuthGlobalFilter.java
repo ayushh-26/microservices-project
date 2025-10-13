@@ -76,9 +76,10 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
 
                 ServerHttpRequest mutatedRequest = exchange.getRequest()
                         .mutate()
-                        .header(HttpHeaders.AUTHORIZATION, _AuthFactory.BuildAuthHeader(routeId))
-                        .header("X-API-GATEWAY-SECRET", _AuthFactory.getSharedSecret())
+                        .header(HttpHeaders.AUTHORIZATION, _AuthFactory.buildAuthHeader(routeId))
+                        .header("X-API-GATEWAY-SECRET", _AuthFactory.getSharedSecret(routeId))
                         .build();
+
                 return chain.filter(exchange.mutate().request(mutatedRequest).build());
             } else {
                 return unauthorized(exchange);
@@ -93,7 +94,7 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
         return exchange.getResponse().setComplete();
     }
 
-      public int getOrder() {
+    public int getOrder() {
         // Run before every other filter
         return -1;
     }
