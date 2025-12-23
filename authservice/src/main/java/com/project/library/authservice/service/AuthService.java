@@ -5,9 +5,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.project.library.authservice.dto.SignupDto;
-import com.project.library.authservice.dto.ReturnDto;
 import com.project.library.authservice.dto.AuthDto;
+import com.project.library.authservice.dto.AuthResponseDto;
 import com.project.library.authservice.repository.AuthRepository;
+import com.project.library.authservice.exception.*;
 
 @Service
 public class AuthService {
@@ -16,35 +17,61 @@ public class AuthService {
     private final PasswordEncoder _PasswordEncoder;
 
     @Autowired
-    AuthService(AuthRepository authRepository, PasswordEncoder passwordEncoder) {
+    public AuthService(AuthRepository authRepository, PasswordEncoder passwordEncoder) {
         this._AuthRepository = authRepository;
         this._PasswordEncoder = passwordEncoder;
     }
 
-    public boolean SignUp(SignupDto cred, ReturnDto response) {
-        cred.set_Password(_PasswordEncoder.encode(cred.get_Password()));
-        StringBuffer status = new StringBuffer();
-        boolean isSuccess = _AuthRepository.SignUp(cred, status);
-        if (isSuccess) {
-            response.set_Status("User registration successful.");
+    // ------------------- SIGNUP -------------------
+    public boolean SignUp(SignupDto cred, AuthResponseDto response) {
+        try {
+            // Hash password
+            cred.set_Password(_PasswordEncoder.encode(cred.get_Password()));
 
-        } else {
-            response.set_Status("User registration failed: " + status.toString());
-        }
-        response.set_Email(cred.get_Email());
-        return isSuccess;
-    }
+            // Repository call (throws UserAlreadyExistsException if duplicate)
+            _AuthRepository.SignUp(cred);
 
-    public Boolean Authenticate(AuthDto cred) {
-        String email = cred.get_Email();
-        String password = cred.get_Password();
-        StringBuffer status = new StringBuffer();
-        StringBuffer passwordFromDB = new StringBuffer();
-        Boolean isSuccess = _AuthRepository.getPasswordFromEmail(email, passwordFromDB, status);
-        if (isSuccess && _PasswordEncoder.matches(password, passwordFromDB.toString())) {
+            response.set_Email(cred.get_Email());
+            response.set_Status("Success");
             return true;
+
+        } catch (UserAlreadyExistsException e) {
+            response.set_Email(cred.get_Email());
+            response.set_Status("Signup failed: " + e.getMessage());
+            throw e;
+
+        } catch (DatabaseException e) {
+            response.set_Email(cred.get_Email());
+            response.set_Status("Signup failed: " + e.getMessage());
+            throw e;
+
+        } catch (Exception e) {
+            response.set_Email(cred.get_Email());
+            response.set_Status("Signup failed: " + e.getMessage());
+            throw new DatabaseException("Failed to signup user: " + e.getMessage());
         }
-        return false;
     }
 
+    // ------------------- AUTHENTICATE -------------------
+    public boolean Authenticate(AuthDto cred) {
+        try {
+            String passwordFromDB = _AuthRepository.getPasswordByEmail(cred.get_Email());
+
+            // If password does not match
+            if (!_PasswordEncoder.matches(cred.get_Password(), passwordFromDB)) {
+                throw new InvalidCredentialsException("Incorrect password");
+            }
+
+            return true;
+
+        } catch (UserNotFoundException e) {
+            throw e;
+
+        } catch (InvalidCredentialsException e) {
+            throw e;
+
+        } catch (Exception e) {
+            throw new DatabaseException("Failed to authenticate user: " + e.getMessage());
+        }
+    }
 }

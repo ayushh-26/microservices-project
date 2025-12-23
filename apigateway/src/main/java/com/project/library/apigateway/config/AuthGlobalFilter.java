@@ -43,7 +43,23 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
             return chain.filter(exchange);
         }
 
-        // extract basic auth header
+        // ------------------- Detect Internal Service Call -------------------
+        String internalServiceHeader = exchange.getRequest().getHeaders().getFirst("X-INTERNAL-SERVICE");
+        if (internalServiceHeader != null && !internalServiceHeader.isEmpty()) {
+            // Internal service → bypass user authentication
+            Route route = exchange.getAttribute(ServerWebExchangeUtils.GATEWAY_ROUTE_ATTR);
+            String routeId = (route != null) ? route.getId() : "default";
+
+            ServerHttpRequest mutatedRequest = exchange.getRequest()
+                    .mutate()
+                    .header(HttpHeaders.AUTHORIZATION, _AuthFactory.buildAuthHeader(routeId))
+                    .header("X-API-GATEWAY-SECRET", _AuthFactory.getSharedSecret(routeId))
+                    .build();
+
+            return chain.filter(exchange.mutate().request(mutatedRequest).build());
+        }
+
+        // ------------------- External Client Auth -------------------
         String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
         if (authHeader == null || !authHeader.startsWith("Basic ")) {
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
@@ -84,9 +100,7 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
             } else {
                 return unauthorized(exchange);
             }
-        })
-                .onErrorResume(ex -> unauthorized(exchange));
-
+        }).onErrorResume(ex -> unauthorized(exchange));
     }
 
     private Mono<Void> unauthorized(ServerWebExchange exchange) {
